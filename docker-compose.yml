@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - 'dbdata:/data/db'
+  rabbitmq:
+    image: rabbitmq:3.8.14-management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - 'rabbitdata:/var/lib/rabbitmq/'
+      - 'rabbitlog:/var/log/rabbitmq/'
+  backend:
+    container_name: compass-backend
+    image: compass-backend:1.0.0
+    restart: always
+    ports:
+      - '5000:5000'
+    environment:
+      # Add google maps key
+      - GOOGLE_MAPS_API_KEY=
+    external_links:
+      - mongo
+    depends_on:
+      - mongo
+      - rabbitmq
+  frontend:
+    container_name: compass-frontend
+    image: compass-frontend:bar
+    environment:
+      # Add google maps key
+      - REACT_APP_GOOGLE_MAPS_API_KEY=
+    ports:
+      - '80:80'
+volumes:
+        dbdata:
+        rabbitdata:
+        rabbitlog:
